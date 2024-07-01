@@ -2,13 +2,14 @@ from typing import List, Any
 import numpy as np
 import re
 import pandas as pd
+from analytical_functions.constant import dict_rename_coating, dict_rename_material
 
 
 def processing_time(start_time: np.ndarray) -> np.ndarray:
-    '''
+    """"
     :param start_time: Необработанное время после соединения данных в один файл.
     :return: Обработанное время, которое учитывает простои при фрезеровании
-    '''
+    """
     start_time_shift: np.ndarray = np.insert(start_time, 0, start_time[0])
     start_time_shift: np.ndarray = np.delete(start_time_shift, start_time_shift.size - 1)
     new_time: np.ndarray = start_time - start_time_shift
@@ -23,14 +24,14 @@ def processing_time(start_time: np.ndarray) -> np.ndarray:
 
 
 def adding_time_in_temperature(arr: np.ndarray, data_strength: pd.DataFrame) -> np.ndarray:
-    '''
+    """
     Изнанчально в данных о температуре нет времени, так как при фрезеровании время не записывалось в файл.
     Поэтому мы создаем время, в зависимости от данных, которые записывались в файл сил.
 
     :param arr: nd.ndarray[None],со временем из данных о температуре
     :param data_strength: DataFrame с данными о силе, в котором есть столбец "Time"
     :return: np.ndarray со временем для температуры.
-    '''
+    """
     # Вычисляем время, берем суммарное время
     # обработки и делим на величину массива и умножаем на шаг
     for i in range(arr.size):
@@ -39,13 +40,13 @@ def adding_time_in_temperature(arr: np.ndarray, data_strength: pd.DataFrame) -> 
 
 
 def determination_zero_strength(list_strenght_dataframe: List[pd.DataFrame], min_strength: float) -> List[pd.DataFrame]:
-    '''
+    """
     При записи разных проходов настроки устройства сбиваются, из-за чего силы в состоянии покоя показываются разные,
     данная функция вычисляет эту сила состояния покоя и прибавляет ее ко всем данным об этом проходе.
     :param list_strenght_dataframe: Список DataFrame с данными о силе
     :param min_strength: Минимальная сила, меньше которой мы считаем обработка не происходит.
     :return: Новый список с измененными Таблицами DataFrame где к прибавлена константа нуля.
-    '''
+    """
     new_list_dataframe: list[pd.DataFrame] = []
     for data_frame_strength in list_strenght_dataframe:
         try:
@@ -90,7 +91,8 @@ def determining_coefficients(dataframe: pd.DataFrame) -> tuple[float, float]:
 
 def determining_koeff_without_bad_data(data, percent=0.22):
     """
-    Определения функции для нахождения коэффициентов для функции прямой линии с помощью метода наименьших квадратов(МНК).
+    Определения функции для нахождения коэффициентов для
+    функции прямой линии с помощью метода наименьших квадратов(МНК).
     Без наиболее худших данных.
     :param data:
     :param percent:
@@ -139,37 +141,23 @@ def quadratic_error(x: pd.Series, y: pd.Series) -> np.ndarray:
     return y_fail
 
 
-def rename_materials(string: str) -> str:
-    dictionary_material = {
-        "50": "ХН50",
-        "58": "ХН58",
-        "41": "ВТ41",
-        "18": "ВТ18У"
-    }
+def rename_materials(string: str, dict_rename_materials: dict[str]) -> str:
     material_result = string
-    for key, elem in dictionary_material.items():
+    for key, elem in dict_rename_materials.items():
         if key in string:
             material_result = elem
             break
     return material_result
 
 
-def rename_coating(string: str) -> str:
-    dict_coating = {
-        'naco': 'nACo3',
-        'tib': 'TiB2',
-        'altin': 'AlTiN3',
-        'nacro': 'nACRo',
-        'altincrn': 'AlTiCrN3',
-    }
+def rename_coating(string: str, dict_rename_coatings: dict[str]) -> str:
     list_coat = [x.strip() for x in string.split('+')]
     for i in range(len(list_coat)):
-        for key, elem in dict_coating.items():
+        for key, elem in dict_rename_coatings.items():
             if key in list_coat[i].lower():
                 list_coat[i] = elem
                 break
     return '+'.join(list_coat)
-
 
 
 def extract_param_path(path):
@@ -184,10 +172,11 @@ def extract_param_path(path):
     stage = match.groups()[0]
     material = match.groups()[1]
     coating = match.groups()[2]
-    material = rename_materials(material)
-    coating = rename_coating(coating)
+    material = rename_materials(material, dict_rename_material)
+    coating = rename_coating(coating, dict_rename_coating)
 
     return material, coating, 'Фреза 12', stage
+
 
 if __name__ == '__main__':
     df = pd.DataFrame({'1': [1, 2, 3, 4], '2': [5, 6, 7, 8]})
