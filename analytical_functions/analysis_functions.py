@@ -6,10 +6,12 @@ from analytical_functions.constant import dict_rename_coating, dict_rename_mater
 
 
 def processing_time(start_time: np.ndarray) -> np.ndarray:
-    """"
-    :param start_time: Необработанное время после соединения данных в один файл.
-    :return: Обработанное время, которое учитывает простои при фрезеровании
     """
+    :param start_time: np.ndarray: Необработанное время после соединения данных в один файл.
+    :return: np.ndarray - Обработанное время, которое учитывает простои при фрезеровании
+    """
+    if any(elem < 0 for elem in start_time):
+        raise ValueError("Некорректное время")
     start_time_shift: np.ndarray = np.insert(start_time, 0, start_time[0])
     start_time_shift: np.ndarray = np.delete(start_time_shift, start_time_shift.size - 1)
     new_time: np.ndarray = start_time - start_time_shift
@@ -26,7 +28,7 @@ def processing_time(start_time: np.ndarray) -> np.ndarray:
 def adding_time_in_temperature(arr: np.ndarray, data_strength: pd.DataFrame) -> np.ndarray:
     """
     Изнанчально в данных о температуре нет времени, так как при фрезеровании время не записывалось в файл.
-    Поэтому мы создаем время, в зависимости от данных, которые записывались в файл сил.
+    Поэтому мы создаем столбец со временем, в зависимости от данных, которые записывались в файл сил.
 
     :param arr: nd.ndarray[None],со временем из данных о температуре
     :param data_strength: DataFrame с данными о силе, в котором есть столбец "Time"
@@ -59,7 +61,7 @@ def determination_zero_strength(list_strenght_dataframe: List[pd.DataFrame], min
     return new_list_dataframe
 
 
-def add_names_fields(data: pd.DataFrame):
+def add_names_fields(data: pd.DataFrame) -> pd.DataFrame:
     data.columns = ['Time', 'Fx', 'Fy', 'Fz']
     data['Time'] = data['Time'].round(2)
     return data
@@ -89,14 +91,14 @@ def determining_coefficients(dataframe: pd.DataFrame) -> tuple[float, float]:
     return w0, w1
 
 
-def determining_koeff_without_bad_data(data, percent=0.22):
+def determining_coefficient_without_bad_data(data: pd.DataFrame, percent: float = 0.22) -> tuple[float, float]:
     """
     Определения функции для нахождения коэффициентов для
     функции прямой линии с помощью метода наименьших квадратов(МНК).
     Без наиболее худших данных.
-    :param data:
-    :param percent:
-    :return:
+    :param data: pd.DataFrame. DataFrame с данными с двумя столбцами временем и силой(температура) резания.
+    :param percent: Процент отбрасываемых данных.
+    :return: tuple (w0, w1), коэффициенты для прямой.
     """
     kol_minus = int(np.ceil(len(data) * percent))
     w1, w2 = determining_coefficients(data)
@@ -126,8 +128,8 @@ def predict(w1: float, w2: float, x_scale: pd.Series) -> List[np.float64 | Any]:
     Построение прямой в с помщью коэффициентов.
     :param w1: свободный коэффициент прямой.
     :param w2: коэффициент роста прямой.
-    :param x_scale: list[np.float64], список предсказанных значений.
-    :return:
+    :param x_scale: list[np.float64], значения времени.
+    :return: list[np.float64], список предсказанных значений.
     """
     x_scale = x_scale.to_numpy()
     y_pred = [w1 + x_scale[i] * w2 for i in range(len(x_scale))]
@@ -135,6 +137,13 @@ def predict(w1: float, w2: float, x_scale: pd.Series) -> List[np.float64 | Any]:
 
 
 def quadratic_error(x: pd.Series, y: pd.Series) -> np.ndarray:
+    """
+    Определение среднеквадратичной ошибки.
+    :param x: pd.Series, значения времени.
+    :param y: pd.Series, значения силы.
+    :return: np.ndarray, значения ошибки.
+    """
+
     y_1 = x.to_numpy()
     y_2 = y.to_numpy()
     y_fail = (y_1 - y_2) ** 2
@@ -142,6 +151,12 @@ def quadratic_error(x: pd.Series, y: pd.Series) -> np.ndarray:
 
 
 def rename_materials(string: str, dict_rename_materials: dict[str]) -> str:
+    """
+    Переименование материалов.
+    :param string: str
+    :param dict_rename_materials: dict[str]
+    :return: Возвращает переименованный материал.
+    """
     material_result = string
     for key, elem in dict_rename_materials.items():
         if key in string:
@@ -151,6 +166,13 @@ def rename_materials(string: str, dict_rename_materials: dict[str]) -> str:
 
 
 def rename_coating(string: str, dict_rename_coatings: dict[str]) -> str:
+    """
+    Переименование покрытий.
+    :param string: str
+    :param dict_rename_coatings: dict[str]
+    :return: str. Возвращает переименованное покрытие.
+
+    """
     list_coat = [x.strip() for x in string.split('+')]
     for i in range(len(list_coat)):
         for key, elem in dict_rename_coatings.items():
@@ -160,12 +182,12 @@ def rename_coating(string: str, dict_rename_coatings: dict[str]) -> str:
     return '+'.join(list_coat)
 
 
-def extract_param_path(path):
+def extract_param_path(path: str) -> tuple[str, str, str, str]:
     """
-    Испльзуя регулярные выражения достаем занчения материала, покрытия и этапа из строки пути файла.
+    Испльзуя регулярные выражения достаем занчения материала, покрытия и этапа из строки пути к папке с файлами сил.
 
-    :param path: Путь к папке в которой лежат силы.
-    :return: Возвращает кортеж из 4 знаечеий material, coating, 'Фреза 12', stage
+    :param path: str -  Путь к папке в которой лежат силы.
+    :return: tuple(str, str, str, str) - Возвращает кортеж из 4 знаечеий material, coating, 'Фреза 12', stage
     """
     pattern = r'\w:(?:/.*?/)*?(\d\s?этап)/(\w{2}\s?\d{2}\s?[uу]?).*?/(\w+?\s?\+?\s?\w+)\s?\d+/'
     match = re.match(pattern, path)
@@ -178,9 +200,9 @@ def extract_param_path(path):
     return material, coating, 'Фреза 12', stage
 
 
-if __name__ == '__main__':
-    df = pd.DataFrame({'1': [1, 2, 3, 4], '2': [5, 6, 7, 8]})
-    df_np = df['1'].to_numpy()
-    coefficients = determining_coefficients(df)
-    new = quadratic_error(df['1'], df['2'])
-    print(type(new))
+# if __name__ == '__main__':
+#     df = pd.DataFrame({'1': [1, 2, 3, 4], '2': [5, 6, 7, 8]})
+#     df_np = df['1'].to_numpy()
+#     coefficients = determining_coefficients(df)
+#     new = quadratic_error(df['1'], df['2'])
+#     print(type(new))
