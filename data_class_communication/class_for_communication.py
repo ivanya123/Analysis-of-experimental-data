@@ -275,32 +275,29 @@ class Couple:
 
 
 if __name__ == '__main__':
-    path_s = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Силы"
-    # path_ = r"D:\Пара Сила+температура\4 этап\HN58\new party\ALTIN\Силы"
-    strength_ = Strength(path_strength=path_s,
-                         material='ХН50',
-                         coating='nACo3',
-                         tool='Фреза 12',
-                         feed=58,
-                         spindle_speed=800,
-                         stage='4')
-
-    # new_path = r"C:\Users\aples\PycharmProjects\AnaliticData\files"
-    # paathing = r"C:\Users\aples\PycharmProjects\AnaliticData\files\Фреза 12;ХН50;nACo3;58;800;4"
-    # strength_.save_file(new_path)
-    # new_strength = Strength.from_dir(paathing)
-    path_ = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Температура"
-    temperature_ = Temperature(path_temperature=path_,
-                               material='ХН50',
-                               coating='nACo3',
-                               tool='Фреза 12',
-                               feed=58,
-                               spindle_speed=800,
-                               stage='4',
-                               couple_strength=strength_)
-    # temperature_.save_file(new_path, couple_strength=strength_)
-
-    couple_ = Couple(strength=strength_, temperature=temperature_)
-    couple_.save_file(r"C:\Users\aples\PycharmProjects\AnaliticData\files")
-    # couple_ = Couple.from_dir(r"C:\Users\aples\PycharmProjects\AnaliticData\files\Фреза 12;ХН50;nACo3;58;800;4")
-    print(couple_.couple_data)
+    pass
+    # path_s = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Силы"
+    # # path_ = r"D:\Пара Сила+температура\4 этап\HN58\new party\ALTIN\Силы"
+    # strength_ = Strength(path_strength=path_s,
+    #                      material='ХН50',
+    #                      coating='nACo3',
+    #                      tool='Фреза 12',
+    #                      feed=58,
+    #                      spindle_speed=800,
+    #                      stage='4')
+    #
+    # path_ = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Температура"
+    # temperature_ = Temperature(path_temperature=path_,
+    #                            material='ХН50',
+    #                            coating='nACo3',
+    #                            tool='Фреза 12',
+    #                            feed=58,
+    #                            spindle_speed=800,
+    #                            stage='4',
+    #                            couple_strength=strength_)
+    # # temperature_.save_file(new_path, couple_strength=strength_)
+    #
+    # couple_ = Couple(strength=strength_, temperature=temperature_)
+    # couple_.save_file(r"C:\Users\aples\PycharmProjects\AnaliticData\files")
+    # # couple_ = Couple.from_dir(r"C:\Users\aples\PycharmProjects\AnaliticData\files\Фреза 12;ХН50;nACo3;58;800;4")
+    # print(couple_.couple_data)
