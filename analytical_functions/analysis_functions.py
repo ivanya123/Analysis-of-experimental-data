@@ -3,6 +3,7 @@ import numpy as np
 import re
 import pandas as pd
 from analytical_functions.constant import dict_rename_coating, dict_rename_material
+from typing import Optional
 
 
 def processing_time(start_time: np.ndarray) -> np.ndarray:
@@ -25,19 +26,25 @@ def processing_time(start_time: np.ndarray) -> np.ndarray:
     return processed_time
 
 
-def adding_time_in_temperature(arr: np.ndarray, data_strength: pd.DataFrame) -> np.ndarray:
+def adding_time_in_temperature(arr: np.ndarray, processing_time_: Optional[float] = None) -> np.ndarray:
     """
     Изнанчально в данных о температуре нет времени, так как при фрезеровании время не записывалось в файл.
     Поэтому мы создаем столбец со временем, в зависимости от данных, которые записывались в файл сил.
 
+    :param processing_time_: Время обработки
     :param arr: nd.ndarray[None],со временем из данных о температуре
-    :param data_strength: DataFrame с данными о силе, в котором есть столбец "Time"
     :return: np.ndarray со временем для температуры.
     """
     # Вычисляем время, берем суммарное время
     # обработки и делим на величину массива и умножаем на шаг
-    for i in range(arr.size):
-        arr[i] = ((data_strength['Time'].iloc[-1]) / arr.size) * i
+
+    if processing_time_:
+        for i in range(arr.size):
+            arr[i] = (processing_time_ / arr.size) * i
+        return arr
+    else:
+        for i in range(arr.size):
+            arr[i] = 0.28 * i
     return arr
 
 
@@ -58,7 +65,8 @@ def determination_zero_strength(strength_dataframe: pd.DataFrame, min_strength: 
         raise IndexError(f'В одном из файлов нет сил > {min_strength}')
 
 
-def determination_zero_strength_list(list_strenght_dataframe: List[pd.DataFrame], min_strength: float) -> List[pd.DataFrame]:
+def determination_zero_strength_list(list_strenght_dataframe: List[pd.DataFrame], min_strength: float) -> List[
+    pd.DataFrame]:
     """
     При записи разных проходов настроки устройства сбиваются, из-за чего силы в состоянии покоя показываются разные,
     данная функция вычисляет эту сила состояния покоя и прибавляет ее ко всем данным об этом проходе.
