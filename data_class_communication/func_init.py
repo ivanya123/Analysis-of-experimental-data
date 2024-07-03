@@ -6,6 +6,7 @@ import re
 from typing import Optional
 import numpy as np
 
+
 def create_file_list(path: str) -> list[str]:
     try:
         list_file = [os.path.join(path, x) for x in os.listdir(path)]
@@ -60,8 +61,10 @@ def create_data_frame_temperature_from_list(list_data_frame: list[pd.DataFrame],
     data_frame = data_frame.loc[data_frame['Voltage'] > min_voltage]
     time_field = data_frame['Time'].to_numpy()
     data_frame['Time'] = adding_time_in_temperature(time_field, processing_time_)
-    data_frame = data_frame.reset_index(drop=True)
-    return data_frame
+    data_frame['Time'] = data_frame['Time'].apply(np.ceil)
+    df = data_frame.groupby(by='Time').mean().dropna().reset_index()
+    df['Voltage']  = df['Voltage'].apply(lambda x: round(x, 2))
+    return df
 
 
 def extract_basename(filename):
