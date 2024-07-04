@@ -8,7 +8,7 @@ dict_rename_material = {
 dict_rename_coating = {
     'naco': 'nACo3',
     'tib': 'TiB2',
-    'altin': 'AlTiN3',
     'nacro': 'nACRo',
-    'altincrn': 'AlTiCrN3',
+    'alticrn': 'AlTiCrN3',
+    'altin': 'AlTiN3',
 }

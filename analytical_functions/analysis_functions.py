@@ -214,13 +214,20 @@ def extract_param_path(path: str) -> tuple[str, str, str, str]:
     :param path: str -  Путь к папке в которой лежат силы.
     :return: tuple(str, str, str, str) - Возвращает кортеж из 4 знаечеий material, coating, 'Фреза 12', stage
     """
-    pattern = r'\w:(?:/.*?/)*?(\d\s?этап)/(\w{2}\s?\d{2}\s?[uу]?).*?/(\w+?\s?\+?\s?\w+)\s?\d+/'
+    pattern = r'\w:(?:/.*?/)*?(\d\s?этап)/(\w{2}\s?\d{2}\s?[uу]?).*?/((?:\w+?\s?\+?\s?\w+?\s?\d+/)|(?:\w+?/))'
     match = re.match(pattern, path)
-    stage = match.groups()[0]
-    material = match.groups()[1]
-    coating = match.groups()[2]
-    material = rename_materials(material, dict_rename_material)
-    coating = rename_coating(coating, dict_rename_coating)
+    if match:
+        stage = match.groups()[0]
+        material = match.groups()[1]
+        coating = match.groups()[2]
+        material = rename_materials(material, dict_rename_material)
+        coating = rename_coating(coating, dict_rename_coating)
+    else:
+        material = 'Неизвестно'
+        coating = 'Неизвестно'
+        stage = 'Неизвестно'
+
+
 
     return material, coating, 'Фреза 12', stage
 

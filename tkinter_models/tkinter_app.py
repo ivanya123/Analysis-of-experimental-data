@@ -12,7 +12,7 @@ def extract_main_path():
         with open("Config.txt", "r") as f:
             main_path = f.readlines()
             return main_path[0].split(':', 1)[1].strip()
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         main_path = fd.askdirectory(title="Выберите основную папку для хранения", initialdir=os.getcwd())
         if main_path:
             with open("Config.txt", "w") as f:
@@ -84,15 +84,15 @@ class App(tk.Tk):
         dir_strength = fd.askdirectory(title="Выберите папку с силами", initialdir=self.search_path)
         dir_temperature = fd.askdirectory(title="Выберите папку с температурой", initialdir=dir_strength)
         material, coating, tool, stage = extract_param_path(dir_strength.replace('\\', '/'))
-        app = AddData(material, coating, tool, stage, dir_strength)
-        app.mainloop()
-        material = app.material
-        coating = app.coating
-        tool = app.tool
-        stage = app.stage
-        speed = app.speed
-        feed = app.feed
-        app.destroy()
+        app_confirm = AddData(material, coating, tool, stage, dir_strength)
+        app_confirm.mainloop()
+        material = app_confirm.material
+        coating = app_confirm.coating
+        tool = app_confirm.tool
+        stage = app_confirm.stage
+        speed = app_confirm.speed
+        feed = app_confirm.feed
+        app_confirm.destroy()
         strength = Strength(path_strength=dir_strength,
                             material=material,
                             coating=coating,
@@ -119,7 +119,7 @@ class AddData(tk.Tk):
     def __init__(self, material: str, coating: str, tool: str, stage: str, path_strength):
         super().__init__()
         self.title(path_strength)
-        self.geometry("200x400")
+        self.geometry("600x400")
 
         if 'ХН' in material:
             self.label_speed = tk.Label(self, text="Spindle Speed")
