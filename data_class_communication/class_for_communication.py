@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from analytical_functions.analysis_functions import determining_coefficient_without_bad_data, predict
+from analytical_functions.analysis_functions import determining_coefficient_without_bad_data, predict, data_with_out_nan
 import openpyxl
 import time
 import uuid
@@ -10,6 +10,8 @@ from data_class_communication.func_init import create_file_list, create_data_fra
 import numpy as np
 import pickle
 import shelve
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class Strength:
@@ -256,6 +258,7 @@ class Couple:
         self.strength = strength
         self.temperature = temperature
         self.merge_file()
+        self.plot = Plot(self)
 
     def merge_file(self):
         self.couple_data = pd.merge(self.strength.data_frame,
@@ -288,8 +291,38 @@ class Couple:
         return f"{self.strength.filename}"
 
 
-if __name__ == '__main__':
+class Plot:
+    def __init__(self, couple: Couple = None, strength: Strength = None):
+        if couple:
+            self.data_frame = couple.couple_data
+        else:
+            self.data_frame = strength.data_frame
 
+        self.title = f'{couple.strength.material}, {couple.strength.coating}\nИзменение силы и температуры резания во время обработки.'
+        self.name_x = 't, сек'
+        self.name_y_1 = 'Силы, Н'
+        self.name_y_2 = 'T, \u2103'
+
+    def show_plots(self):
+        data_s = data_with_out_nan(self.data_frame[['Time', 'Fy']])
+
+        fig, ax1 = plt.subplots()
+        fig.suptitle(self.title)
+        ax1.set_xlabel(self.name_x)
+        ax1.set_ylabel(self.name_y_1, color='tab:blue')
+        ax1.plot(data_s['Time'], data_s['Fy'], '-', color='tab:blue')
+        ax1.tick_params(axis='y', labelcolor='tab:blue')
+
+        ax2 = ax1.twinx()
+        ax2.set_ylabel(self.name_y_2, color='tab:red')
+        ax2.plot(self.data_frame['Time'], self.data_frame['Temperature'], '-', color='tab:red')
+        ax2.tick_params(axis='y', labelcolor='tab:red')
+
+        fig.tight_layout()
+        return fig, ax1, ax2
+
+
+if __name__ == '__main__':
     # path_s = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Силы"
     # # path_ = r"D:\Пара Сила+температура\4 этап\HN58\new party\ALTIN\Силы"
     # strength_ = Strength(path_strength=path_s,
@@ -319,9 +352,9 @@ if __name__ == '__main__':
     # db[couple_.strength.filename] = couple_
     # db.close()
 
-    db = shelve.open(r"C:\Users\aples\PycharmProjects\AnaliticData\files\data_base\shelve_db")
-    couple_ = db['Фреза 12;ХН50;nACo3;58;800;4']
-    keys = db.keys()
+    db = shelve.open(r"C:\Users\aples\PycharmProjects\Analysis-of-experimental-data\files\data_base\shelve_db")
+    couple_ = db['Фреза 12;ХН50;nACo3;53.0;800.0;4 этап']
     db.close()
-    print(keys)
-
+    fig, ax1, ax2 = couple_.plot.show_plots()
+    plt.show()
+    help(ax1.plot)

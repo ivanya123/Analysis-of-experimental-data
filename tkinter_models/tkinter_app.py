@@ -65,13 +65,16 @@ class App(tk.Tk):
         self.viewing_frame = tk.LabelFrame(self, text="Viewing data")
         self.viewing_frame.pack(fill="x", padx=8, pady=8)
         self.label_main_path = tk.Label(self.viewing_frame, text=self.main_path)
-        self.label_main_path.pack()
+        self.label_main_path.grid(row=0, column=0, padx=8, pady=8)
+        count = 1
         if self.list_couple:
+            count = 1
             for couple in self.list_couple:
                 label = tk.Label(self.viewing_frame, text=f"{couple}")
-                label.pack()
+                label.grid(row=count, column=0, padx=5, pady=5)
+                count += 1
         self.button_update = tk.Button(self.viewing_frame, text="Update", command=self.update_data_base, width=15)
-        self.button_update.pack(padx=10, pady=10)
+        self.button_update.grid(row = count, padx=10, pady=10)
 
         self.create_data_frame = tk.LabelFrame(self, text="Create data")
         self.create_data_frame.pack(fill="x", padx=8, pady=8)

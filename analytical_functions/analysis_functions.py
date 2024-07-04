@@ -231,6 +231,10 @@ def extract_param_path(path: str) -> tuple[str, str, str, str]:
 
     return material, coating, 'Фреза 12', stage
 
+
+def data_with_out_nan(data: pd.DataFrame) -> pd.DataFrame:
+    return data.dropna()
+
 if __name__ == '__main__':
 #     df = pd.DataFrame({'1': [1, 2, 3, 4], '2': [5, 6, 7, 8]})
 #     df_np = df['1'].to_numpy()
