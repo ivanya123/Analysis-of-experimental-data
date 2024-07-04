@@ -8,7 +8,7 @@ Strength mean: 32.93289583333333
 Equation: 16.20 + 0.06·T = Fy
 w0: 16.19906366295417
 w1: 0.06445932500214421
-Unique ID: 33c72735-c98f-431b-ae00-3bcb34651771
+Unique ID: e00d456d-1853-4411-b01f-975b4bf79538
 Passes: 7
 Processing time: 511.0
 Start: 2024.03.20-10:03:58
@@ -17,4 +17,4 @@ Temperature_mean: 296.39662109375
 w0_t: 241.96810195188996
 w1_t: 0.26005279966302475
 Equation_temperature: 241.97  +  0.26·t = T
-Unique_temperature ID: 0a3ce97e-497f-432a-b238-eeeeec600757
+Unique_temperature ID: cb329c31-0c89-4ba6-aea1-89f2cf671323

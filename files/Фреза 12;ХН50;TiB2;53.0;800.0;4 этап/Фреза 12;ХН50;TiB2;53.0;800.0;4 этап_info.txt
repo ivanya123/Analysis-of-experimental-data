@@ -1,0 +1,20 @@
+Material: ÕÍ50
+Coating: TiB2
+Tool: Ôðåçà 12
+Feed: 53.0
+Spindle Speed: 800.0
+Stage: 4 ýòàï
+Strength mean: 38.155913853317806
+Equation: 18.99 + 0.04·T = Fy
+w0: 18.985350540956286
+w1: 0.04198145945318644
+Unique ID: 5d892e49-f8f4-45dd-aeaa-e18505af4413
+Passes: 10
+Processing time: 884.0
+Start: 2023.05.30-12:31:08
+End: 2023.05.30-12:52:18
+Temperature_mean: 335.2253107344632
+w0_t: 278.60459381870004
+w1_t: 0.17446463369733523
+Equation_temperature: 278.60  +  0.17·t = T
+Unique_temperature ID: 72dc96d3-35d0-4896-b068-e9416fecd7fa

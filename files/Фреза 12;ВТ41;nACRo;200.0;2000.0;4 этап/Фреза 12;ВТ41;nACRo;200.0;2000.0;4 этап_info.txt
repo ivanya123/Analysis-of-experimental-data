@@ -1,0 +1,20 @@
+Material: ÂÒ41
+Coating: nACRo
+Tool: Ôðåçà 12
+Feed: 200.0
+Spindle Speed: 2000.0
+Stage: 4 ýòàï
+Strength mean: 23.147170207798272
+Equation: 18.10 + 0.00·T = Fy
+w0: 18.104877222770366
+w1: 0.0022288355747098663
+Unique ID: 9a308e01-14c2-4ece-9496-4d0cd57a7a46
+Passes: 62
+Processing time: 4438.0
+Start: 2024.03.21-10:11:08
+End: 2024.03.21-10:20:16
+Temperature_mean: 183.769353457986
+w0_t: 163.33157464468928
+w1_t: 0.009757393735931898
+Equation_temperature: 163.33  +  0.01·t = T
+Unique_temperature ID: 8b7d88d8-4048-4bc5-a097-4b1b4fb3263d

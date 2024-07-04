@@ -4,6 +4,8 @@ import re
 import pandas as pd
 from analytical_functions.constant import dict_rename_coating, dict_rename_material
 from typing import Optional
+from pprint import pprint
+import os
 
 
 def processing_time(start_time: np.ndarray) -> np.ndarray:
@@ -63,6 +65,8 @@ def determination_zero_strength(strength_dataframe: pd.DataFrame, min_strength: 
         return strength_dataframe
     except IndexError:
         raise IndexError(f'В одном из файлов нет сил > {min_strength}')
+
+
 
 
 def determination_zero_strength_list(list_strenght_dataframe: List[pd.DataFrame], min_strength: float) -> List[
@@ -214,7 +218,7 @@ def extract_param_path(path: str) -> tuple[str, str, str, str]:
     :param path: str -  Путь к папке в которой лежат силы.
     :return: tuple(str, str, str, str) - Возвращает кортеж из 4 знаечеий material, coating, 'Фреза 12', stage
     """
-    pattern = r'\w:(?:/.*?/)*?(\d\s?этап)/(\w{2}\s?\d{2}\s?[uу]?).*?/((?:\w+?\s?\+?\s?\w+?\s?\d+/)|(?:\w+?/))'
+    pattern = r'\w:(?:/.*?/)*?(\d\s?этап)/(\w{2}\s?\d{2}\s?[uу]?).*?/((?:\w+?\s?\+?\s?\w+?\s?\d*?/)|(?:\w+?/))'
     match = re.match(pattern, path)
     if match:
         stage = match.groups()[0]
@@ -227,19 +231,37 @@ def extract_param_path(path: str) -> tuple[str, str, str, str]:
         coating = 'Неизвестно'
         stage = 'Неизвестно'
 
-
-
     return material, coating, 'Фреза 12', stage
 
 
 def data_with_out_nan(data: pd.DataFrame) -> pd.DataFrame:
     return data.dropna()
 
+
+def list_all_path_strength_temperature(path: str):
+    all_files_and_dirs = os.walk(path)
+    list_path = []
+    for path, dirs, files in all_files_and_dirs:
+        if dirs == ['Силы', 'Температура']:
+            strength = os.path.join(path, 'Силы').replace('\\', '/')
+            temperature = os.path.join(path, 'Температура').replace('\\', '/')
+            list_path.append((strength, temperature))
+    return list_path
+
+
 if __name__ == '__main__':
-#     df = pd.DataFrame({'1': [1, 2, 3, 4], '2': [5, 6, 7, 8]})
-#     df_np = df['1'].to_numpy()
-#     coefficients = determining_coefficients(df)
-#     new = quadratic_error(df['1'], df['2'])
-#     print(type(new))
-    path = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Силы".replace('\\', '/')
-    print(extract_param_path(path))
+    #     df = pd.DataFrame({'1': [1, 2, 3, 4], '2': [5, 6, 7, 8]})
+    #     df_np = df['1'].to_numpy()
+    #     coefficients = determining_coefficients(df)
+    #     new = quadratic_error(df['1'], df['2'])
+    #     print(type(new))
+    path = r"C:\Анализ данных\Пара Сила+температура"
+    list_path = list_all_path_strength_temperature(path)
+    list_strength = [elem[0] for elem in list_path]
+    count = 0
+    for strength in list_strength:
+        material, coating, stage, temperature = extract_param_path(strength)
+        if material == 'Неизвестно':
+            print(strength)
+            count += 1
+            print(count)

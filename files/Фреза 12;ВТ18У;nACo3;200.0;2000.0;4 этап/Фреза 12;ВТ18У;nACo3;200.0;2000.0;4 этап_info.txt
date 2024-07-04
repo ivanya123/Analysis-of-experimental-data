@@ -1,0 +1,20 @@
+Material: ÂÒ18Ó
+Coating: nACo3
+Tool: Ôðåçà 12
+Feed: 200.0
+Spindle Speed: 2000.0
+Stage: 4 ýòàï
+Strength mean: 24.776487163431437
+Equation: 26.30 + -0.00·T = Fy
+w0: 26.29505324191218
+w1: -0.003579628542037012
+Unique ID: eea0c7d4-8cba-482b-b0d4-c69cf48abd88
+Passes: 25
+Processing time: 1664.0
+Start: 2023.04.10-13:24:04
+End: 2023.04.10-14:42:42
+Temperature_mean: 204.3074174174174
+w0_t: 147.8020216277863
+w1_t: 0.07455109762987172
+Equation_temperature: 147.80  +  0.07·t = T
+Unique_temperature ID: 3312c2b6-440c-4214-8ce7-a26577a6dc71

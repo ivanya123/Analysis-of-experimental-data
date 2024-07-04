@@ -1,0 +1,20 @@
+Material: ÕÍ50
+Coating: AlTiN3+TiB2
+Tool: Ôðåçà 12
+Feed: 53.0
+Spindle Speed: 800.0
+Stage: 4 ýòàï
+Strength mean: 28.918576470588235
+Equation: 19.61 + 0.02·T = Fy
+w0: 19.614171335165388
+w1: 0.023707607838193
+Unique ID: 283fa2c0-b3fd-4b04-868b-6df80c409843
+Passes: 10
+Processing time: 881.0
+Start: 2023.06.13-14:58:06
+End: 2023.06.13-15:26:04
+Temperature_mean: 277.3397732426304
+w0_t: 221.96467309829376
+w1_t: 0.14402511059077036
+Equation_temperature: 221.96  +  0.14·t = T
+Unique_temperature ID: 5c4044a6-5de2-4e7a-94bf-ca9822774028

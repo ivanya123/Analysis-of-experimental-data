@@ -3,8 +3,10 @@ import tkinter.filedialog as fd
 from tkinter import messagebox
 import os
 from data_class_communication.class_for_communication import Temperature, Strength, Couple
-from analytical_functions.analysis_functions import extract_param_path
+from analytical_functions.analysis_functions import extract_param_path, list_all_path_strength_temperature
 import shelve
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
 
 
 def extract_main_path():
@@ -20,6 +22,16 @@ def extract_main_path():
             return main_path
         else:
             return extract_main_path()
+
+
+def on_mouse_wheel(event, canvas):
+    if event.delta:
+        canvas.yview_scroll(-1 * int(event.delta / 120), "units")
+    else:
+        if event.num == 4:
+            canvas.yview_scroll(-1, "units")
+        elif event.num == 5:
+            canvas.yview_scroll(1, "units")
 
 
 def extract_search_path():
@@ -41,14 +53,16 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Analysis of Experimental data")
-        self.geometry("800x600")
+        self.geometry("1400x800")
         self.main_path = extract_main_path()
         self.search_path = extract_search_path()
         self.list_couple: list[Couple] = None
+        self.canvas_plot = None
         self.create_widgets()
 
         # self.label_main_path = tk.Label(self, text=self.main_path)
         # self.label_main_path.pack()
+
     def update_data_base(self):
         self.list_couple = self.extract_data_base()
         self.viewing_frame.destroy()
@@ -61,9 +75,24 @@ class App(tk.Tk):
         db.close()
         return self.list_couple
 
+    def plot_show(self, couple: Couple):
+        fig, ax1, ax2 = couple.plot.show_plots()
+        self.canvas_plot = FigureCanvasTkAgg(fig, master=self)
+        self.canvas_plot.get_tk_widget().grid(row=0, column=2, padx=8, pady=8)
+        self.canvas_plot.draw()
+
     def create_widgets(self):
-        self.viewing_frame = tk.LabelFrame(self, text="Viewing data")
-        self.viewing_frame.pack(fill="x", padx=8, pady=8)
+        self.scrollbar = tk.Scrollbar(orient=tk.VERTICAL)
+        self.canvas = tk.Canvas(self, width=400, height=800, yscrollcommand=self.scrollbar.set)
+        self.canvas["scrollregion"] = (0, 0, 1000, 1000)
+        self.scrollbar.config(command=self.canvas.yview)
+        self.canvas.grid(column=0, row=0, padx=8, pady=8)
+        self.scrollbar.grid(row=0, column=1, sticky='w')
+
+        self.viewing_frame = tk.Frame(self.canvas)
+        self.viewing_frame.pack(padx=8, pady=8)
+        self.canvas.create_window((0, 0), anchor='nw', window=self.viewing_frame)
+
         self.label_main_path = tk.Label(self.viewing_frame, text=self.main_path)
         self.label_main_path.grid(row=0, column=0, padx=8, pady=8)
         count = 1
@@ -71,17 +100,59 @@ class App(tk.Tk):
             count = 1
             for couple in self.list_couple:
                 label = tk.Label(self.viewing_frame, text=f"{couple}")
-                label.grid(row=count, column=0, padx=5, pady=5)
+                label.grid(row=count, column=0, padx=3, pady=3, sticky='w')
+                button = tk.Button(self.viewing_frame, text="Plot", command=lambda i=couple: self.plot_show(i),
+                                   width=15)
+                button.grid(row=count, column=1, padx=3, pady=3, sticky='w')
                 count += 1
         self.button_update = tk.Button(self.viewing_frame, text="Update", command=self.update_data_base, width=15)
-        self.button_update.grid(row = count, padx=10, pady=10)
+        self.button_update.grid(row=count, padx=5, pady=5)
 
         self.create_data_frame = tk.LabelFrame(self, text="Create data")
-        self.create_data_frame.pack(fill="x", padx=8, pady=8)
+        self.create_data_frame.grid(row=1, column=2, padx=8, pady=8)
         self.label_add = tk.Label(self.create_data_frame, text="Add data")
         self.label_add.grid(row=0, column=0, padx=8, pady=8)
         self.button_add = tk.Button(self.create_data_frame, text="Add", command=self.add_data, width=15)
         self.button_add.grid(row=0, column=1, padx=8, pady=8)
+        self.button_full_data = tk.Button(self.create_data_frame, text="Create Full data", command=self.full_data,
+                                          width=15)
+        self.button_full_data.grid(row=0, column=2, padx=8, pady=8)
+
+    def full_data(self):
+        directory = fd.askdirectory(title="Выберите папку с данными", initialdir=self.search_path)
+        list_tuple_strength_temperature = list_all_path_strength_temperature(directory)
+        for strength, temperature in list_tuple_strength_temperature:
+            material, coating, tool, stage = extract_param_path(strength)
+            app_confirm = AddData(material, coating, tool, stage, strength)
+            app_confirm.mainloop()
+            material = app_confirm.material
+            coating = app_confirm.coating
+            tool = app_confirm.tool
+            stage = app_confirm.stage
+            speed = app_confirm.speed
+            feed = app_confirm.feed
+            app_confirm.destroy()
+            try:
+                strength = Strength(path_strength=strength,
+                                    material=material,
+                                    coating=coating,
+                                    tool=tool,
+                                    stage=stage,
+                                    spindle_speed=speed,
+                                    feed=feed)
+                temperature = Temperature(path_temperature=temperature,
+                                          material=material,
+                                          coating=coating,
+                                          tool=tool,
+                                          stage=stage,
+                                          spindle_speed=speed,
+                                          feed=feed,
+                                          couple_strength=strength)
+                couple = Couple(strength=strength,
+                                temperature=temperature)
+                couple.save_file(self.main_path)
+            except IndexError:
+                continue
 
     def add_data(self):
         dir_strength = fd.askdirectory(title="Выберите папку с силами", initialdir=self.search_path)
@@ -175,7 +246,7 @@ class AddData(tk.Tk):
         self.entry_stage.pack()
 
         self.button_add = tk.Button(self, text="Confirm", command=self.confirm_data, width=15)
-        self.button_add.pack()
+        self.button_add.pack(padx=10, pady=10)
 
     def confirm_data(self):
         self.material = self.entry_material.get()

@@ -1,0 +1,20 @@
+Material: ÂÒ41
+Coating: uncoated
+Tool: Ôðåçà 12
+Feed: 200.0
+Spindle Speed: 2000.0
+Stage: 4 ýòàï
+Strength mean: 21.35010604453871
+Equation: 19.26 + 0.00·T = Fy
+w0: 19.260175893669558
+w1: 0.002490538757844724
+Unique ID: a867ed8e-382c-4191-b51b-3a42763f7c73
+Passes: 26
+Processing time: 1934.0
+Start: 2024.03.21-12:49:50
+End: 2024.03.21-12:55:20
+Temperature_mean: 176.5766511627907
+w0_t: 164.20691969159756
+w1_t: 0.014473816762387112
+Equation_temperature: 164.21  +  0.01·t = T
+Unique_temperature ID: f5ea6816-6303-4fb7-b281-774f96edda20
