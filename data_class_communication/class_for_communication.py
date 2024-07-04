@@ -8,6 +8,8 @@ from data_class_communication.func_init import create_file_list, create_data_fra
     create_data_strength_from_list, extract_basename, create_data_frame_temperature_from_list, \
     create_data_frame_temperature
 import numpy as np
+import pickle
+import shelve
 
 
 class Strength:
@@ -111,6 +113,7 @@ class Strength:
         strength.coefficient_mnk = float(info_dict['w0']), float(info_dict['w1'])
         strength.equation_mnk = info_dict['Equation']
         strength.processing_time = float(info_dict['Processing time'])
+        strength.filename = os.path.basename(path_dir)
         return strength
 
 
@@ -269,13 +272,17 @@ class Couple:
             self.strength.data_frame.to_excel(writer, sheet_name='Data_strength')
             self.couple_data.to_excel(writer, sheet_name='Couple_data')
 
+        data_base = shelve.open(f'{path_dir}/data_base/shelve_db')
+        data_base[self.strength.filename] = self
+        data_base.close()
+
     @classmethod
     def from_dir(cls, path_dir: str):
         return cls(Strength.from_dir(path_dir), Temperature.from_dir(path_dir))
 
 
 if __name__ == '__main__':
-    pass
+
     # path_s = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Силы"
     # # path_ = r"D:\Пара Сила+температура\4 этап\HN58\new party\ALTIN\Силы"
     # strength_ = Strength(path_strength=path_s,
@@ -299,5 +306,15 @@ if __name__ == '__main__':
     #
     # couple_ = Couple(strength=strength_, temperature=temperature_)
     # couple_.save_file(r"C:\Users\aples\PycharmProjects\AnaliticData\files")
-    # # couple_ = Couple.from_dir(r"C:\Users\aples\PycharmProjects\AnaliticData\files\Фреза 12;ХН50;nACo3;58;800;4")
-    # print(couple_.couple_data)
+
+    # couple_ = Couple.from_dir(r"C:\Users\aples\PycharmProjects\AnaliticData\files\Фреза 12;ХН50;nACo3;58;800;4")
+    # db = shelve.open(r"C:\Users\aples\PycharmProjects\AnaliticData\Shelve_db\data_base")
+    # db[couple_.strength.filename] = couple_
+    # db.close()
+
+    db = shelve.open(r"C:\Users\aples\PycharmProjects\AnaliticData\files\data_base\shelve_db")
+    couple_ = db['Фреза 12;ХН50;nACo3;58;800;4']
+    keys = db.keys()
+    db.close()
+    print()
+
