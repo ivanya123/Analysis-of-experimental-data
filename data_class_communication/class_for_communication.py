@@ -28,6 +28,10 @@ class Strength:
                  min_strength: float | int = 12,
                  from_files: bool = False,
                  percent: float | int = 0.22):
+        """
+
+        :rtype: object
+        """
         self.material = material
         self.coating = coating
         self.tool = tool
@@ -280,6 +284,9 @@ class Couple:
     def from_dir(cls, path_dir: str):
         return cls(Strength.from_dir(path_dir), Temperature.from_dir(path_dir))
 
+    def __str__(self):
+        return f"{self.strength.filename}"
+
 
 if __name__ == '__main__':
 
@@ -316,5 +323,5 @@ if __name__ == '__main__':
     couple_ = db['Фреза 12;ХН50;nACo3;58;800;4']
     keys = db.keys()
     db.close()
-    print()
+    print(keys)
 

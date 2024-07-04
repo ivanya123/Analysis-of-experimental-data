@@ -224,9 +224,11 @@ def extract_param_path(path: str) -> tuple[str, str, str, str]:
 
     return material, coating, 'Фреза 12', stage
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 #     df = pd.DataFrame({'1': [1, 2, 3, 4], '2': [5, 6, 7, 8]})
 #     df_np = df['1'].to_numpy()
 #     coefficients = determining_coefficients(df)
 #     new = quadratic_error(df['1'], df['2'])
 #     print(type(new))
+    path = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Силы".replace('\\', '/')
+    print(extract_param_path(path))
