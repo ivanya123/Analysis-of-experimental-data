@@ -53,7 +53,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Analysis of Experimental data")
-        self.geometry("1400x800")
+        self.geometry("1200x1000")
         self.main_path = extract_main_path()
         self.search_path = extract_search_path()
         self.list_couple: list[Couple] = None
