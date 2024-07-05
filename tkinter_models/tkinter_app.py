@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.filedialog as fd
 from tkinter import messagebox
 import os
-from data_class_communication.class_for_communication import Temperature, Strength, Couple
+from data_class_communication.class_for_communication import Temperature, Strength, Couple, Plot
 from analytical_functions.analysis_functions import extract_param_path, list_all_path_strength_temperature
 import shelve
 from matplotlib.backends.backend_tkagg import (
@@ -47,6 +47,15 @@ def extract_search_path():
             return search_path
         else:
             return extract_search_path()
+
+def update_plot_db(path, **dict_params):
+    db = shelve.open(path)
+    for key in db.keys():
+        couple = db[key]
+        for name, items in dict_params.items():
+            couple.plot.name = items
+        db[key] = couple
+    db.close()
 
 
 class App(tk.Tk):

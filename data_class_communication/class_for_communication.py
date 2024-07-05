@@ -298,7 +298,7 @@ class Plot:
         else:
             self.data_frame = strength.data_frame
 
-        self.title = f'{couple.strength.material}, {couple.strength.coating}\nИзменение силы и температуры резания во время обработки.'
+        self.title = f'{couple.strength.material}, {couple.strength.coating}'
         self.name_x = 't, сек'
         self.name_y_1 = 'Силы, Н'
         self.name_y_2 = 'T, \u2103'
