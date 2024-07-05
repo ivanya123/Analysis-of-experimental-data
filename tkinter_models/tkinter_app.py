@@ -48,6 +48,7 @@ def extract_search_path():
         else:
             return extract_search_path()
 
+
 def update_plot_db(path, **dict_params):
     db = shelve.open(path)
     for key in db.keys():
@@ -58,11 +59,12 @@ def update_plot_db(path, **dict_params):
     db.close()
 
 
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Analysis of Experimental data")
-        self.geometry("1200x1000")
+        self.geometry("1200x700")
         self.main_path = extract_main_path()
         self.search_path = extract_search_path()
         self.list_couple: list[Couple] = None
@@ -92,18 +94,20 @@ class App(tk.Tk):
 
     def create_widgets(self):
         self.scrollbar = tk.Scrollbar(orient=tk.VERTICAL)
-        self.canvas = tk.Canvas(self, width=400, height=800, yscrollcommand=self.scrollbar.set)
-        self.canvas["scrollregion"] = (0, 0, 1000, 1000)
+        self.canvas = tk.Canvas(self, width=500, height=400, yscrollcommand=self.scrollbar.set,
+                                bd=2,
+                                bg='white')
+        # self.canvas["scrollregion"] = self.canvas.bbox("all")
         self.scrollbar.config(command=self.canvas.yview)
         self.canvas.grid(column=0, row=0, padx=8, pady=8)
         self.scrollbar.grid(row=0, column=1, sticky='w')
 
-        self.viewing_frame = tk.Frame(self.canvas)
+        self.viewing_frame = tk.Frame(self.canvas, width=600)
         self.viewing_frame.pack(padx=8, pady=8)
         self.canvas.create_window((0, 0), anchor='nw', window=self.viewing_frame)
 
         self.label_main_path = tk.Label(self.viewing_frame, text=self.main_path)
-        self.label_main_path.grid(row=0, column=0, padx=8, pady=8)
+        self.label_main_path.grid(row=0, column=0, padx=8, pady=8, sticky='w')
         count = 1
         if self.list_couple:
             count = 1
@@ -115,7 +119,11 @@ class App(tk.Tk):
                 button.grid(row=count, column=1, padx=3, pady=3, sticky='w')
                 count += 1
         self.button_update = tk.Button(self.viewing_frame, text="Update", command=self.update_data_base, width=15)
-        self.button_update.grid(row=count, padx=5, pady=5)
+        self.button_update.grid(row=count, column=0, padx=5, pady=5)
+        self.canvas.update_idletasks()
+        self.canvas["scrollregion"] = self.canvas.bbox("all")
+        self.viewing_frame.bind('<MouseWheel>', lambda event: on_mouse_wheel(event, self.canvas))
+        self.bind('<MouseWheel>', lambda event: on_mouse_wheel(event, self.canvas))
 
         self.create_data_frame = tk.LabelFrame(self, text="Create data")
         self.create_data_frame.grid(row=1, column=2, padx=8, pady=8)

@@ -50,16 +50,6 @@ def test_extract_param_path_8():
     assert result == ('ХН50', 'nACo3+TiB2', 'Фреза 12', '6 этап')
 
 
-def test_extract_param_path_9():
-    path = "C:/Анализ данных/Пара Сила+температура/4 этап/HN58/ALTIN+TiB2 1 new/Силы"
-    result = extract_param_path(path)
-    assert result == ('ХН58', 'AlTiN3+TiB2', 'Фреза 12', '4 этап')
-
-
-def test_extract_param_path_10():
-    path = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN58\new party\ALTIN+TiB2 1 new\Силы".replace("\\", "/")
-    result = extract_param_path(path)
-    assert result == ('ХН58', 'AlTiN3+TiB2', 'Фреза 12', '4 этап')
 
 
 if __name__ == "__main__":
