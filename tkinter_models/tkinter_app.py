@@ -5,8 +5,10 @@ import os
 from data_class_communication.class_for_communication import Temperature, Strength, Couple, Plot
 from analytical_functions.analysis_functions import extract_param_path, list_all_path_strength_temperature
 import shelve
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
+from tkinter_models.function import enter, leave, open_folder_in_explorer
 
 
 def extract_main_path():
@@ -59,7 +61,6 @@ def update_plot_db(path, **dict_params):
     db.close()
 
 
-
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -88,16 +89,24 @@ class App(tk.Tk):
 
     def plot_show(self, couple: Couple):
         fig, ax1, ax2 = couple.plot.show_plots()
+        if self.canvas_plot:
+            self.canvas_plot.get_tk_widget().destroy()
         self.canvas_plot = FigureCanvasTkAgg(fig, master=self)
         self.canvas_plot.get_tk_widget().grid(row=0, column=2, padx=8, pady=8)
         self.canvas_plot.draw()
+        plt.close()
+
+    def clear_plot(self):
+        if self.canvas_plot:
+            self.canvas_plot.get_tk_widget().destroy()
+
 
     def create_widgets(self):
         self.scrollbar = tk.Scrollbar(orient=tk.VERTICAL)
         self.canvas = tk.Canvas(self, width=500, height=400, yscrollcommand=self.scrollbar.set,
                                 bd=2,
                                 bg='white')
-        # self.canvas["scrollregion"] = self.canvas.bbox("all")
+
         self.scrollbar.config(command=self.canvas.yview)
         self.canvas.grid(column=0, row=0, padx=8, pady=8)
         self.scrollbar.grid(row=0, column=1, sticky='w')
@@ -118,6 +127,10 @@ class App(tk.Tk):
                                    width=15)
                 button.grid(row=count, column=1, padx=3, pady=3, sticky='w')
                 count += 1
+                label.bind('<Enter>', lambda event, l=label: enter(event, l))
+                label.bind('<Leave>', lambda event, l=label: leave(event, l))
+                path_ = os.path.join(self.main_path, couple.strength.filename)
+                label.bind("<Double-ButtonPress-1>", lambda event, path=path_: open_folder_in_explorer(path))
         self.button_update = tk.Button(self.viewing_frame, text="Update", command=self.update_data_base, width=15)
         self.button_update.grid(row=count, column=0, padx=5, pady=5)
         self.canvas.update_idletasks()
@@ -205,6 +218,10 @@ class App(tk.Tk):
 
         couple.save_file(self.main_path)
 
+    def destroy(self):
+        self.clear_plot()
+        super().destroy()
+
 
 class AddData(tk.Tk):
     def __init__(self, material: str, coating: str, tool: str, stage: str, path_strength):
@@ -275,6 +292,3 @@ class AddData(tk.Tk):
         self.quit()
 
 
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()

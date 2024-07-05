@@ -1,0 +1,20 @@
+Material: ÕÍ50
+Coating: AlTiCrN3
+Tool: Ôðåçà 12
+Feed: 53.0
+Spindle Speed: 800.0
+Stage: 5 ýòàï
+Strength mean: 37.05977339901477
+Equation: 18.75 + 0.04·T = Fy
+w0: 18.74678995185071
+w1: 0.03644836508336176
+Unique ID: d7596468-940c-48a1-a6d0-19224637a260
+Passes: 12
+Processing time: 1021.0
+Start: 2023.07.05-13:39:32
+End: 2023.07.05-14:24:50
+Temperature_mean: 334.4689823874756
+w0_t: 288.81383355550423
+w1_t: 0.13304864289247992
+Equation_temperature: 288.81  +  0.13·t = T
+Unique_temperature ID: 538d3184-6411-45fd-95ab-07234c174b11
