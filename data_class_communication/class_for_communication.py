@@ -16,7 +16,24 @@ import seaborn as sns
 
 class Strength:
     """
-    ...
+    Класс для хранения структурированных данных о силе во время обработки при износостойких испытаниях фрез.
+    Содержит методы save_file: который создает файлы эксель и csv,
+    а также текстовый файл с информацией о данном  испытании.
+    При инициализации мы передаем изначальные параменты экспепримента такие как:
+    material: str
+    coating: str
+    tool: str
+    feed: float  | int
+    spindle_speed: float  | int
+    stage: str
+
+    Также передаются параметры для анализа:
+    min_strength: float  | int - для минимального значения с которого мы считаем начало и конец обработки.
+    precent: float - прцент непригодных данных при построении модели.
+
+    strength.from_dir(path_strength: str):
+    Также реализовано создание экземпляра из созданных заранее файлов.
+
     """
 
     def __init__(self,
@@ -57,6 +74,13 @@ class Strength:
             self.processing_time = self.data_frame['Time'].iloc[-1]
 
     def save_file(self, path_dir: str) -> None:
+        """
+        Сохранение данных в файлы эксель и csv,
+        а также текстовый файл с информацией о данном  испытании и записывается в базу данных shelve_db.
+        :param path_dir: str - путь к директории для сохранения файлов
+        :return: None
+
+        """
         strength_dir = os.path.join(path_dir, self.filename_base)
         counter = 1
         while os.path.exists(strength_dir):
@@ -125,7 +149,26 @@ class Strength:
 
 class Temperature:
     """
-    Создание объекта Temperature из директории с данными.
+    Класс для хранения структурированных данных о температуре во время обработки при износостойких испытаниях фрез.
+    Содержит методы save_file: который создает файлы эксель и csv,
+    а также текстовый файл с информацией о данном  испытании.
+    Реализовано создание с известными данными данных о силе.
+    При инициализации мы передаем изначальные параменты экспепримента такие как:
+    material: str
+    coating: str
+    tool: str
+    feed: float  | int
+    spindle_speed: float  | int
+    stage: str
+    couple_strength: Strength = None
+
+    Также передаются параметры для анализа:
+    min_strength: float  | int - для минимального значения с которого мы считаем начало и конец обработки.
+    precent: float - прцент непригодных данных при построении модели.
+
+    strength.from_dir(path_strength: str):
+    Также реализовано создание экземпляра из созданных заранее файлов.
+
     """
 
     def __init__(self, path_temperature: str,
@@ -252,7 +295,21 @@ class Temperature:
 class Couple:
     def __init__(self, strength: Strength, temperature: Temperature) -> None:
         """
-        Класс для хранения информации о силе и температуре
+        Класс для хранения информации о силе и температуре износстойкого испытания фрезы.
+        При инициализации создается объединенная таблица с данными силы и температуры.
+        def __init__(self, strength: Strength, temperature: Temperature) -> None
+        :param strength: Strength
+        :param temperature: Temperature
+         также при иницализацит создается атрибут plot - который является экземпляром класса Plot, и служит для
+         отображения графиков.
+
+         Метода save_file(self, path_dir: str)  -> None:
+         вызывает последовательно методы save_file у атрибутов strength и temperature затем создает новый excel файл.
+         Затем сохраняет объект в базу данных shrlve_db.
+
+
+
+
         """
         self.couple_data: pd.DataFrame = pd.DataFrame()
         self.strength = strength
@@ -292,6 +349,11 @@ class Couple:
 
 
 class Plot:
+    """
+    Класс для отображения графиков.
+    Используется классом Couple.
+    """
+
     def __init__(self, couple: Couple = None, strength: Strength = None):
         if couple:
             self.data_frame = couple.couple_data
@@ -307,6 +369,7 @@ class Plot:
         data_s = data_with_out_nan(self.data_frame[['Time', 'Fy']])
 
         fig, ax1 = plt.subplots()
+
         fig.suptitle(self.title)
         ax1.set_xlabel(self.name_x)
         ax1.set_ylabel(self.name_y_1, color='tab:blue')
@@ -320,41 +383,3 @@ class Plot:
 
         fig.tight_layout()
         return fig, ax1, ax2
-
-
-if __name__ == '__main__':
-    # path_s = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Силы"
-    # # path_ = r"D:\Пара Сила+температура\4 этап\HN58\new party\ALTIN\Силы"
-    # strength_ = Strength(path_strength=path_s,
-    #                      material='ХН50',
-    #                      coating='nACo3',
-    #                      tool='Фреза 12',
-    #                      feed=58,
-    #                      spindle_speed=800,
-    #                      stage='4')
-    #
-    # path_ = r"C:\Анализ данных\Пара Сила+температура\4 этап\HN50\nACo3\Температура"
-    # temperature_ = Temperature(path_temperature=path_,
-    #                            material='ХН50',
-    #                            coating='nACo3',
-    #                            tool='Фреза 12',
-    #                            feed=58,
-    #                            spindle_speed=800,
-    #                            stage='4',
-    #                            couple_strength=strength_)
-    # # temperature_.save_file(new_path, couple_strength=strength_)
-    #
-    # couple_ = Couple(strength=strength_, temperature=temperature_)
-    # couple_.save_file(r"C:\Users\aples\PycharmProjects\AnaliticData\files")
-
-    # couple_ = Couple.from_dir(r"C:\Users\aples\PycharmProjects\AnaliticData\files\Фреза 12;ХН50;nACo3;58;800;4")
-    # db = shelve.open(r"C:\Users\aples\PycharmProjects\AnaliticData\Shelve_db\data_base")
-    # db[couple_.strength.filename] = couple_
-    # db.close()
-
-    db = shelve.open(r"C:\Users\aples\PycharmProjects\Analysis-of-experimental-data\files\data_base\shelve_db")
-    couple_ = db['Фреза 12;ХН50;nACo3;53.0;800.0;4 этап']
-    db.close()
-    fig, ax1, ax2 = couple_.plot.show_plots()
-    plt.show()
-    help(ax1.plot)

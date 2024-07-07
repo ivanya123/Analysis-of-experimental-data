@@ -54,7 +54,7 @@ def determination_zero_strength(strength_dataframe: pd.DataFrame, min_strength: 
     """
     При записи разных проходов настроки устройства сбиваются, из-за чего силы в состоянии покоя показываются разные,
     данная функция вычисляет эту сила состояния покоя и прибавляет ее ко всем данным об этом проходе.
-    :param list_strenght_dataframe: Список DataFrame с данными о силе
+    :param strength_dataframe: Список DataFrame с данными о силе
     :param min_strength: Минимальная сила, меньше которой мы считаем обработка не происходит.
     :return: Измененный DataFrame где к прибавлена константа нуля.
     """
@@ -67,10 +67,8 @@ def determination_zero_strength(strength_dataframe: pd.DataFrame, min_strength: 
         raise IndexError(f'В одном из файлов нет сил > {min_strength}')
 
 
-
-
-def determination_zero_strength_list(list_strenght_dataframe: List[pd.DataFrame], min_strength: float) -> List[
-    pd.DataFrame]:
+def determination_zero_strength_list(list_strenght_dataframe: List[pd.DataFrame], min_strength: float) -> \
+        List[pd.DataFrame]:
     """
     При записи разных проходов настроки устройства сбиваются, из-за чего силы в состоянии покоя показываются разные,
     данная функция вычисляет эту сила состояния покоя и прибавляет ее ко всем данным об этом проходе.
@@ -238,7 +236,7 @@ def data_with_out_nan(data: pd.DataFrame) -> pd.DataFrame:
     return data.dropna()
 
 
-def list_all_path_strength_temperature(path: str):
+def list_all_path_strength_temperature(path: str) -> List[str]:
     all_files_and_dirs = os.walk(path)
     list_path = []
     for path, dirs, files in all_files_and_dirs:
