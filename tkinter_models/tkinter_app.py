@@ -100,16 +100,13 @@ class App(tk.Tk):
         if self.canvas_plot:
             self.canvas_plot.get_tk_widget().destroy()
 
-
     def create_widgets(self):
         self.scrollbar = tk.Scrollbar(orient=tk.VERTICAL)
-        self.canvas = tk.Canvas(self, width=500, height=400, yscrollcommand=self.scrollbar.set,
-                                bd=2,
-                                bg='white')
+        self.canvas = tk.Canvas(self, yscrollcommand=self.scrollbar.set)
 
         self.scrollbar.config(command=self.canvas.yview)
-        self.canvas.grid(column=0, row=0, padx=8, pady=8)
-        self.scrollbar.grid(row=0, column=1, sticky='w')
+        self.canvas.grid(column=0, row=0, ipadx=8, ipady=8, sticky='ns')
+        self.scrollbar.grid(row=0, column=1, sticky='ns')
 
         self.viewing_frame = tk.Frame(self.canvas, width=600)
         self.viewing_frame.pack(padx=8, pady=8)
@@ -117,22 +114,21 @@ class App(tk.Tk):
 
         self.label_main_path = tk.Label(self.viewing_frame, text=self.main_path)
         self.label_main_path.grid(row=0, column=0, padx=8, pady=8, sticky='w')
-        count = 1
         if self.list_couple:
             count = 1
             for couple in self.list_couple:
                 label = tk.Label(self.viewing_frame, text=f"{couple}")
                 label.grid(row=count, column=0, padx=3, pady=3, sticky='w')
                 button = tk.Button(self.viewing_frame, text="Plot", command=lambda i=couple: self.plot_show(i),
-                                   width=15)
-                button.grid(row=count, column=1, padx=3, pady=3, sticky='w')
+                                   width=10)
+                button.grid(row=count, column=1, padx=3, pady=3, sticky='n')
                 count += 1
-                label.bind('<Enter>', lambda event, l=label: enter(event, l))
-                label.bind('<Leave>', lambda event, l=label: leave(event, l))
+                label.bind('<Enter>', lambda event, lab=label: enter(event, lab))
+                label.bind('<Leave>', lambda event, lab=label: leave(event, lab))
                 path_ = os.path.join(self.main_path, couple.strength.filename)
                 label.bind("<Double-ButtonPress-1>", lambda event, path=path_: open_folder_in_explorer(path))
-        self.button_update = tk.Button(self.viewing_frame, text="Update", command=self.update_data_base, width=15)
-        self.button_update.grid(row=count, column=0, padx=5, pady=5)
+        self.button_update = tk.Button(self, text="Update", command=self.update_data_base, width=15)
+        self.button_update.grid(row=1, column=0, padx=5, pady=5)
         self.canvas.update_idletasks()
         self.canvas["scrollregion"] = self.canvas.bbox("all")
         self.viewing_frame.bind('<MouseWheel>', lambda event: on_mouse_wheel(event, self.canvas))
@@ -290,5 +286,3 @@ class AddData(tk.Tk):
         self.speed = float(self.entry_speed.get())
         self.feed = float(self.entry_feed.get())
         self.quit()
-
-
