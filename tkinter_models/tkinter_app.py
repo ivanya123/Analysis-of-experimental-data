@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog as fd
 from tkinter import messagebox
+from tkinter import ttk
 import os
 from data_class_communication.class_for_communication import Temperature, Strength, Couple, Plot
 from analytical_functions.analysis_functions import extract_param_path, list_all_path_strength_temperature
@@ -8,7 +9,7 @@ import shelve
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
-from tkinter_models.function import enter, leave, open_folder_in_explorer
+from tkinter_models.function import enter, leave, open_folder_in_explorer, create_widgets_experiments
 
 
 def extract_main_path():
@@ -64,26 +65,41 @@ def update_plot_db(path, **dict_params):
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
+        self.combobox_material = None
+        self.combobox_coating = None
+        self.combobox_stage = None
         self.title("Analysis of Experimental data")
-        self.geometry("1200x700")
+        self.geometry("1400x700")
         self.main_path = extract_main_path()
         self.search_path = extract_search_path()
         self.list_couple: list[Couple] = None
         self.canvas_plot = None
-        self.create_widgets()
+        self.create_widgets(material=None, coating=None, stage=None)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(2, weight=1)
 
         # self.label_main_path = tk.Label(self, text=self.main_path)
         # self.label_main_path.pack()
 
     def update_data_base(self):
         self.list_couple = self.extract_data_base()
-        self.viewing_frame.destroy()
-        self.create_data_frame.destroy()
-        self.create_widgets()
+        material = None
+        coating = None
+        stage = None
+        if self.combobox_material:
+            material = self.combobox_material.get()
+            coating = self.combobox_coating.get()
+            stage = self.combobox_stage.get()
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.create_widgets(material, coating, stage)
+        self.canvas.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
     def extract_data_base(self):
         db = shelve.open(f"{self.main_path}/data_base/shelve_db")
-        self.list_couple = [db[key] for key in db.keys()]
+        self.list_couple: list[Couple] = [db[key] for key in db.keys()]
         db.close()
         return self.list_couple
 
@@ -100,7 +116,7 @@ class App(tk.Tk):
         if self.canvas_plot:
             self.canvas_plot.get_tk_widget().destroy()
 
-    def create_widgets(self):
+    def create_widgets(self, material, coating, stage):
         self.scrollbar = tk.Scrollbar(orient=tk.VERTICAL)
         self.canvas = tk.Canvas(self, yscrollcommand=self.scrollbar.set)
 
@@ -114,25 +130,42 @@ class App(tk.Tk):
 
         self.label_main_path = tk.Label(self.viewing_frame, text=self.main_path)
         self.label_main_path.grid(row=0, column=0, padx=8, pady=8, sticky='w')
+
         if self.list_couple:
-            count = 1
-            for couple in self.list_couple:
-                label = tk.Label(self.viewing_frame, text=f"{couple}")
-                label.grid(row=count, column=0, padx=3, pady=3, sticky='w')
-                button = tk.Button(self.viewing_frame, text="Plot", command=lambda i=couple: self.plot_show(i),
-                                   width=10)
-                button.grid(row=count, column=1, padx=3, pady=3, sticky='n')
-                count += 1
-                label.bind('<Enter>', lambda event, lab=label: enter(event, lab))
-                label.bind('<Leave>', lambda event, lab=label: leave(event, lab))
-                path_ = os.path.join(self.main_path, couple.strength.filename)
-                label.bind("<Double-ButtonPress-1>", lambda event, path=path_: open_folder_in_explorer(path))
-        self.button_update = tk.Button(self, text="Update", command=self.update_data_base, width=15)
-        self.button_update.grid(row=1, column=0, padx=5, pady=5)
+            if self.combobox_material:
+                create_widgets_experiments(self, self.viewing_frame, self.list_couple, material, coating, stage)
+            else:
+                create_widgets_experiments(self, self.viewing_frame, self.list_couple)
+
         self.canvas.update_idletasks()
         self.canvas["scrollregion"] = self.canvas.bbox("all")
         self.viewing_frame.bind('<MouseWheel>', lambda event: on_mouse_wheel(event, self.canvas))
         self.bind('<MouseWheel>', lambda event: on_mouse_wheel(event, self.canvas))
+
+        self.frame_filter_update = tk.LabelFrame(self, text="Experiment filter", padx=8, pady=8)
+        self.frame_filter_update.grid(padx=5, pady=5, sticky='we')
+        self.button_update = tk.Button(self.frame_filter_update, text="Update", command=self.update_data_base, width=15)
+        self.button_update.grid(row=0, column=0, padx=5, pady=5)
+        if self.list_couple:
+            self.combobox_material = ttk.Combobox(self.frame_filter_update,
+                                                  values=list(
+                                                      set([couple.strength.material for couple in self.list_couple])),
+                                                  state='normal')
+            self.combobox_material.grid(row=0, column=1, padx=8, pady=8)
+            self.combobox_coating = ttk.Combobox(self.frame_filter_update,
+                                                 values=list(
+                                                     set([couple.strength.coating for couple in self.list_couple])),
+                                                 state='normal')
+            self.combobox_coating.grid(row=0, column=2, padx=8, pady=8)
+            self.combobox_stage = ttk.Combobox(self.frame_filter_update,
+                                               values=list(
+                                                   set([couple.strength.stage for couple in self.list_couple])),
+                                               state='normal')
+            self.combobox_stage.grid(row=0, column=3, padx=8, pady=8)
+
+        # self.search_widget = ttk.Combobox(self.frame_add_password,
+        #                                   values=list(set([passw.company for passw in self.list_password.list_pass])),
+        #                                   state='normal')
 
         self.create_data_frame = tk.LabelFrame(self, text="Create data")
         self.create_data_frame.grid(row=1, column=2, padx=8, pady=8)
