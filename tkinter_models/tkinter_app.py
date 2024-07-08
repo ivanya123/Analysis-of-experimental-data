@@ -10,9 +10,14 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from tkinter_models.function import enter, leave, open_folder_in_explorer, create_widgets_experiments
+from typing import Any
 
 
-def extract_main_path():
+def extract_main_path() -> str:
+    """
+    :return: str - путь к основной папке, где будут находится наши файлы и база данных. Если такого файла не найдено,
+    то функция предложит создать папку или выбрать к ней путь.
+    """
     try:
         with open("Config.txt", "r") as f:
             main_path = f.readlines()
@@ -37,7 +42,11 @@ def on_mouse_wheel(event, canvas):
             canvas.yview_scroll(1, "units")
 
 
-def extract_search_path():
+def extract_search_path() -> str:
+    """
+    :return: str - путь к папке с данными, путь к вспомогательной папке где лежат исходники экспериментов.
+    Если такой папки нет, предложит выбрать папку с файлами.
+    """
     try:
         with open("Config.txt", "r") as f:
             search_path = f.readlines()
@@ -52,7 +61,13 @@ def extract_search_path():
             return extract_search_path()
 
 
-def update_plot_db(path, **dict_params):
+def update_plot_db(path: str, **dict_params: dict[str, Any]):
+    """
+    Функция для обновления атрибутов эксземпляров классов в базу данных.
+    :param path: - путь к базе данных.
+    :param dict_params: dict - словарь с атрибутами эксземпляров классов и их значений.
+    :return: None
+    """
     db = shelve.open(path)
     for key in db.keys():
         couple = db[key]
@@ -82,7 +97,11 @@ class App(tk.Tk):
         # self.label_main_path = tk.Label(self, text=self.main_path)
         # self.label_main_path.pack()
 
-    def update_data_base(self):
+    def update_data_base(self) -> None:
+        """
+        Функция для обновления отображения базы данных в приложении.
+        :return: None
+        """
         self.list_couple = self.extract_data_base()
         material = None
         coating = None
@@ -98,12 +117,21 @@ class App(tk.Tk):
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
     def extract_data_base(self):
+        """
+        Функция для извлечения данных из базы данных.
+        :return: list[Couple] - список экземпляров класса Couple.
+        """
         db = shelve.open(f"{self.main_path}/data_base/shelve_db")
         self.list_couple: list[Couple] = [db[key] for key in db.keys()]
         db.close()
         return self.list_couple
 
-    def plot_show(self, couple: Couple):
+    def plot_show(self, couple: Couple) -> None:
+        """
+        Функция для отображения графиков.
+        :param couple: принимает экземпляр класса Couple.
+        :return: None
+        """
         fig, ax1, ax2 = couple.plot.show_plots()
         if self.canvas_plot:
             self.canvas_plot.get_tk_widget().destroy()
@@ -178,6 +206,11 @@ class App(tk.Tk):
         self.button_full_data.grid(row=0, column=2, padx=8, pady=8)
 
     def full_data(self):
+        """
+        Функция для для добавления данных в базу данных.
+        list_all_path_strength_temperature - находит все папки где есть папки Сила и Температура
+        :return: None
+        """
         directory = fd.askdirectory(title="Выберите папку с данными", initialdir=self.search_path)
         list_tuple_strength_temperature = list_all_path_strength_temperature(directory)
         for strength, temperature in list_tuple_strength_temperature:
@@ -214,6 +247,10 @@ class App(tk.Tk):
                 continue
 
     def add_data(self):
+        """
+        Функция для добавления данных в базу данных. но только одиного экземпляра.
+        :return:
+        """
         dir_strength = fd.askdirectory(title="Выберите папку с силами", initialdir=self.search_path)
         dir_temperature = fd.askdirectory(title="Выберите папку с температурой", initialdir=dir_strength)
         material, coating, tool, stage = extract_param_path(dir_strength.replace('\\', '/'))
@@ -253,6 +290,9 @@ class App(tk.Tk):
 
 
 class AddData(tk.Tk):
+    """
+    Окно для подтверждения данных при добавлени. т.к. функция extract_param_path может работать некореектно.
+    """
     def __init__(self, material: str, coating: str, tool: str, stage: str, path_strength):
         super().__init__()
         self.title(path_strength)
