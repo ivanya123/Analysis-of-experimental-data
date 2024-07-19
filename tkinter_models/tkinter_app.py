@@ -149,7 +149,7 @@ class App(tk.Tk):
         self.canvas = tk.Canvas(self, yscrollcommand=self.scrollbar.set)
 
         self.scrollbar.config(command=self.canvas.yview)
-        self.canvas.grid(column=0, row=0, ipadx=8, ipady=8, sticky='ns')
+        self.canvas.grid(column=0, row=0, ipadx=8, ipady=8, sticky='nswe')
         self.scrollbar.grid(row=0, column=1, sticky='ns')
 
         self.viewing_frame = tk.Frame(self.canvas, width=600)
